@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Table } from 'reactstrap';
+import ErrorBoundary from './ErrorBoundary';
 
 const ActionsCell = ({ id, onDeleteBook, onEditBook }) => {
   const onDelete = () => {
@@ -23,7 +24,7 @@ const ActionsCell = ({ id, onDeleteBook, onEditBook }) => {
 
 export default class TGrid extends React.Component {
   static propTypes = {
-    data: PropTypes.array,
+    data: PropTypes.array.isRequired,
     onDeleteBook: PropTypes.func,
     onEditBook: PropTypes.func
   };
@@ -31,37 +32,39 @@ export default class TGrid extends React.Component {
   render() {
     const { data, onDeleteBook, onEditBook } = this.props;
     return (
-      <Table size="sm" responsive striped hover>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Author</th>
-            <th>Year</th>
-            <th>Pages</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((book, key) => {
-            const { _id, name, author, year, pages } = book;
-            return (
-              <tr key={key}>
-                <td>{key}</td>
-                <td>{name}</td>
-                <td>{author}</td>
-                <td>{year}</td>
-                <td>{pages}</td>
-                <ActionsCell
-                  id={_id}
-                  onDeleteBook={onDeleteBook}
-                  onEditBook={onEditBook}
-                />
-              </tr>
-            );
-          })}
-        </tbody>
-      </Table>
+      <ErrorBoundary>
+        <Table size="sm" responsive striped hover>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Author</th>
+              <th>Year</th>
+              <th>Pages</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((book, key) => {
+              const { _id, name, author, year, pages } = book;
+              return (
+                <tr key={key}>
+                  <td>{key}</td>
+                  <td>{name}</td>
+                  <td>{author}</td>
+                  <td>{year}</td>
+                  <td>{pages}</td>
+                  <ActionsCell
+                    id={_id}
+                    onDeleteBook={onDeleteBook}
+                    onEditBook={onEditBook}
+                  />
+                </tr>
+              );
+            })}
+          </tbody>
+        </Table>
+      </ErrorBoundary>
     );
   }
 }

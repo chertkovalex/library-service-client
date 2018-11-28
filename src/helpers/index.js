@@ -35,3 +35,10 @@ export const findBookById = (books, id) => books.find(book => book._id === id);
  */
 export const findBookIndexById = (books, id) =>
   books.findIndex(book => book._id === id);
+
+/**
+ *
+ * @param val: String
+ * @returns {number|string}
+ */
+export const getCorrectTypeValue = val => (isNaN(val) ? val : parseInt(val));

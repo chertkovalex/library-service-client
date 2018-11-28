@@ -11,15 +11,16 @@ import {
   updateBook,
   getBookData
 } from '../actions';
-import { findBookIndexById } from '../helpers';
+import { findBookIndexById, getCorrectTypeValue } from '../helpers';
 
 export default class Content extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { books: [], editValues: null };
+    this.state = { books: [], values: {} };
 
-    this.onSaveBook = this.onSaveBook.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
     this.onDeleteBook = this.onDeleteBook.bind(this);
+    this.onInputChange = this.onInputChange.bind(this);
     this.onEditBook = this.onEditBook.bind(this);
   }
 
@@ -28,11 +29,41 @@ export default class Content extends React.Component {
     this.setState({ books });
   };
 
-  onSaveBook = async data => {
+  onInputChange(e) {
+    const target = e.target;
+    const { name, value } = target;
+
+    const values = this.state.values || {};
+
+    const newValues = Object.assign({}, values, {
+      [name]: getCorrectTypeValue(value)
+    });
+
+    this.setState({ values: newValues });
+  }
+
+  onSubmit(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const { values } = this.state;
+    console.log('submit data', values);
+    this.onSaveBook(values);
+  }
+
+  async onSaveBook(data) {
     try {
       // update book
       if (data._id) {
-        await updateBook(data);
+        const dataToSend = {
+          _id: data._id,
+          pages: data.pages,
+          year: data.year
+        };
+
+        const res = await updateBook(dataToSend);
+        console.log('res update', res);
         // request new full list to refresh
         const books = await getAllBooks();
 
@@ -47,9 +78,9 @@ export default class Content extends React.Component {
     } catch (e) {
       console.log(e);
     }
-  };
+  }
 
-  onDeleteBook = async id => {
+  async onDeleteBook(id) {
     try {
       const res = await deleteBook(id);
       if (res.data && res.data.deleted === true) {
@@ -64,25 +95,29 @@ export default class Content extends React.Component {
     } catch (e) {
       console.log(e);
     }
-  };
+  }
 
   onEditBook = async id => {
     try {
       const { book } = await getBookData(id);
-      this.setState({ editValues: book });
+      this.setState({ values: book });
     } catch (e) {
       console.log(e);
     }
   };
 
   render() {
-    const { books, editValues } = this.state;
+    const { books, values } = this.state;
 
     return (
       <Container fluid={true}>
         <Row>
           <Col>
-            <EditBook onSave={this.onSaveBook} values={editValues} />
+            <EditBook
+              onSave={this.onSubmit}
+              values={values}
+              onInputChange={this.onInputChange}
+            />
           </Col>
           <Col>
             <TGrid
