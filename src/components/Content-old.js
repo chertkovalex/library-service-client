@@ -1,8 +1,8 @@
 import React from 'react';
+import { Col, Container, Row } from 'reactstrap';
 
-import BottomAppBar from './BottomAppBar';
-import MTable from './MTable';
-import EditBook from './EditBook';
+import EditBookOld from './EditBook-old';
+import TGrid from './TGrid';
 
 import {
   getAllBooks,
@@ -13,12 +13,10 @@ import {
 } from '../actions';
 import { findBookIndexById, getCorrectTypeValue } from '../helpers';
 
-const defaultValues = { name: '', author: '', year: '', pages: undefined };
-
 export default class Content extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { books: [], values: defaultValues, isEditing: false };
+    this.state = { books: [], values: {} };
 
     this.onSubmit = this.onSubmit.bind(this);
     this.onDeleteBook = this.onDeleteBook.bind(this);
@@ -35,7 +33,7 @@ export default class Content extends React.Component {
     const target = e.target;
     const { name, value } = target;
 
-    const values = this.state.values || defaultValues;
+    const values = this.state.values || {};
 
     const newValues = Object.assign({}, values, {
       [name]: getCorrectTypeValue(value)
@@ -68,16 +66,14 @@ export default class Content extends React.Component {
         // request new full list to refresh
         const books = await getAllBooks();
 
-        this.setState({ books });
-        return this.closeEditDialog();
+        return this.setState({ books });
       }
 
       const newBook = await addBook(data);
       const { books } = this.state;
       const newBooks = [...books, newBook];
 
-      this.setState({ books: newBooks });
-      return this.closeEditDialog();
+      return this.setState({ books: newBooks });
     } catch (e) {
       console.log(e);
     }
@@ -100,49 +96,37 @@ export default class Content extends React.Component {
     }
   }
 
-  onAddBook = () => {
-    this.setState({ values: defaultValues, isEditing: true });
-  };
-
-  closeEditDialog = () => {
-    this.setState({ isEditing: false });
-  };
-
   onEditBook = async id => {
     try {
       const { book } = await getBookData(id);
-      this.setState({ values: book, isEditing: true });
+      this.setState({ values: book });
     } catch (e) {
       console.log(e);
     }
   };
 
   render() {
-    const { books, values, isEditing } = this.state;
-
-    const data = books.map(book => {
-      const { _id, name, author, year, pages } = book;
-      return { id: _id, name, author, year, pages };
-    });
-
-    const editBookProps = {
-      onClose: this.closeEditDialog,
-      onInputChange: this.onInputChange,
-      onSave: this.onSubmit,
-      open: isEditing,
-      values
-    };
+    const { books, values } = this.state;
 
     return (
-      <div>
-        <MTable
-          data={data}
-          onDelete={this.onDeleteBook}
-          onEdit={this.onEditBook}
-        />
-        <BottomAppBar onAddBook={this.onAddBook} />
-        <EditBook {...editBookProps} />
-      </div>
+      <Container fluid={true}>
+        <Row>
+          <Col>
+            <EditBookOld
+              onSave={this.onSubmit}
+              values={values}
+              onInputChange={this.onInputChange}
+            />
+          </Col>
+          <Col>
+            <TGrid
+              data={books}
+              onDeleteBook={this.onDeleteBook}
+              onEditBook={this.onEditBook}
+            />
+          </Col>
+        </Row>
+      </Container>
     );
   }
 }

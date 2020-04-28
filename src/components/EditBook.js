@@ -1,65 +1,83 @@
 import React from 'react';
-import { Button, Form, FormGroup, Input, Label } from 'reactstrap';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
-const EditBook = props => {
-  const { onInputChange, values, onSave } = props;
-  const { _id, author, name, year, pages } = values;
-  const currentYear = new Date(Date.now()).getFullYear();
-  return (
-    <Form onSubmit={onSave}>
-      <FormGroup>
-        <Label for="name">Name</Label>
-        <Input
-          id="name"
-          name="name"
-          onChange={onInputChange}
-          placeholder="Book Name"
-          required
-          type="text"
-          defaultValue={name}
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label for="author">Author</Label>
-        <Input
-          id="author"
-          name="author"
-          onChange={onInputChange}
-          placeholder="Book author"
-          required
-          type="text"
-          defaultValue={author}
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label for="year">Year of publication</Label>
-        <Input
-          id="year"
-          max={currentYear}
-          min="-10000"
-          name="year"
-          onChange={onInputChange}
-          placeholder="1991"
-          required
-          type="number"
-          defaultValue={year}
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label for="pages">Number of pages</Label>
-        <Input
-          id="pages"
-          name="pages"
-          onChange={onInputChange}
-          placeholder="0000"
-          type="number"
-          defaultValue={pages}
-        />
-      </FormGroup>
-      <Button type="submit">{_id ? 'Save' : 'Add'} Book</Button>
-      <Button>Clear</Button>
-    </Form>
-  );
-};
+export default class FormDialog extends React.Component {
+  handleClose = () => {
+    this.props.onClose();
+  };
 
-export default EditBook;
+  render() {
+    const { onInputChange, onSave, open, values } = this.props;
+
+    return (
+      <div>
+        <Dialog
+          open={open}
+          onClose={this.handleClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <form onSubmit={onSave}>
+            <DialogTitle id="form-dialog-title">Book details</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Please enter book details</DialogContentText>
+              <TextField
+                autoFocus
+                defaultValue={values.name}
+                fullWidth
+                label="Name"
+                margin="dense"
+                name="name"
+                onChange={onInputChange}
+                required={true}
+                type="text"
+              />
+              <TextField
+                defaultValue={values.author}
+                fullWidth
+                label="Author"
+                margin="dense"
+                name="author"
+                onChange={onInputChange}
+                required={true}
+                type="text"
+              />
+              <TextField
+                defaultValue={values.year}
+                fullWidth
+                label="Year"
+                margin="dense"
+                name="year"
+                onChange={onInputChange}
+                required={true}
+                type="number"
+              />
+              <TextField
+                defaultValue={values.pages}
+                fullWidth
+                label="Pages"
+                margin="dense"
+                name="pages"
+                onChange={onInputChange}
+                type="number"
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.handleClose} color="primary">
+                Cancel
+              </Button>
+              <Button color="primary" type="submit">
+                Save
+              </Button>
+            </DialogActions>
+          </form>
+        </Dialog>
+      </div>
+    );
+  }
+}
